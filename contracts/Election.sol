@@ -8,6 +8,8 @@ contract Election {
         string name;
         uint voteCount;
     }
+    //Store accounts that have voted
+    mapping(address => bool) public voters;
 
     // Store candidates
     // Fetch candidates
@@ -25,4 +27,27 @@ contract Election {
         candidatesCount ++;
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
     }
+
+    function vote(uint _candidateId) public {
+    // Debug voter check
+    if (voters[msg.sender]) {
+        revert("Already voted");
+    }
+    require(!voters[msg.sender], "Already voted");
+    require(_candidateId > 0 && _candidateId <= candidatesCount, "Invalid candidate");
+
+    // Record voter
+    voters[msg.sender] = true;
+
+    // Update candidate vote count
+    candidates[_candidateId].voteCount++;
+
+    // Debugging
+    emit LogVoteCast(msg.sender, _candidateId);
 }
+
+// Debugging event
+event LogVoteCast(address indexed voter, uint candidateId);
+
+}
+
